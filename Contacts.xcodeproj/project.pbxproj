@@ -32,6 +32,7 @@
 		D9182738249E41EA0055FB12 /* Contact+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Contact+CoreDataClass.swift"; sourceTree = "<group>"; };
 		D9182739249E41EA0055FB12 /* Contact+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Contact+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		D918273C249E66CF0055FB12 /* ContactCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactCell.swift; sourceTree = "<group>"; };
+		D946BDCE249F567B00E365C7 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,6 +49,7 @@
 		D918270C249E40E20055FB12 = {
 			isa = PBXGroup;
 			children = (
+				D946BDCE249F567B00E365C7 /* README.md */,
 				D9182717249E40E20055FB12 /* Contacts */,
 				D9182716249E40E20055FB12 /* Products */,
 			);
