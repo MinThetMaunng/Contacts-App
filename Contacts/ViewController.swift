@@ -16,10 +16,9 @@ class ViewController: UIViewController {
     private let context = (UIApplication.shared.delegate as! AppDelegate).persitentContainer.viewContext
     
     private let imagePicker =  UIImagePickerController()
-    
+
     private var alertController: UIAlertController?
-    
-    var contacts = [Contact]()
+    private var fetchedVC: NSFetchedResultsController<Contact>!
     
     let tableView: UITableView = {
         let tv = UITableView()
@@ -45,7 +44,9 @@ class ViewController: UIViewController {
         let request = Contact.fetchRequest() as NSFetchRequest<Contact>
         request.sortDescriptors = [NSSortDescriptor(key: #keyPath(Contact.name), ascending: true, selector: #selector(NSString.caseInsensitiveCompare(_:)))]
         do {
-            contacts = try context.fetch(request)
+            fetchedVC = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
+            fetchedVC.delegate = self
+            try fetchedVC.performFetch()
         } catch let error as NSError {
             fatalError("Error while fetching contacts: \(error.userInfo)")
         }
@@ -108,22 +109,20 @@ class ViewController: UIViewController {
 // MARK: - Table View Delegate Methods
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        contacts.count
+        fetchedVC.fetchedObjects?.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ContactCell.reuseIdentifier, for: indexPath) as! ContactCell
-        cell.contact = contacts[indexPath.row]
+        cell.contact = fetchedVC.object(at: indexPath)
         return cell
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            context.delete(self.contacts[indexPath.row])
-            self.contacts.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .fade)
+            let contact = fetchedVC.object(at: indexPath)
+            context.delete(contact)
             appDelegate.saveContext()
-            self.tableView.reloadData()
         }
     }
     
@@ -141,13 +140,30 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
                 contact.name = fullName
                 contact.phone = phoneNumber
                 contact.photo = chosenImage.jpegData(compressionQuality: 1)
-                self.contacts.append(contact)
+                
                 appDelegate.saveContext()
             }
-            self.tableView.reloadData()
-            self.dismiss(animated: true, completion: { print("DISMISS") })
-        } else {
-            print("hello")
+            self.dismiss(animated: true, completion: nil)
+        }
+    }
+}
+
+
+
+// MARK: - Fetched Results Controller Delegate Methods
+extension ViewController: NSFetchedResultsControllerDelegate {
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        let index = indexPath ?? ( newIndexPath ?? nil)
+        guard let cellIndex = index else { return }
+        
+        switch type {
+        case .insert:
+            tableView.insertRows(at: [cellIndex], with: .fade)
+        case .delete:
+            tableView.deleteRows(at: [cellIndex], with: .fade)
+        default:
+            break
         }
     }
 }
