@@ -147,7 +147,7 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
             self.tableView.reloadData()
             self.dismiss(animated: true, completion: { print("DISMISS") })
         } else {
-            print("hello")
+            print("No image selected")
         }
     }
 }
